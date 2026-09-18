@@ -1,12 +1,12 @@
-services:
+databases:
   # 1. Managed PostgreSQL Database
-  - type: psql
-    name: kalyan-postgres
+  - name: kalyan-postgres
     plan: free # Change to starter/standard for production
     region: oregon # or frankfurt, ohio, singapore
     databaseName: kalyandb
     user: kalyan_admin
 
+services:
   # 2. FastAPI Backend Service
   - type: web
     name: kalyan-api
