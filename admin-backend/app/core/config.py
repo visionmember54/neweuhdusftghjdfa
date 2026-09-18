@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -14,6 +15,15 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     DATABASE_URL: str = f"sqlite:///{DATA_DIR / 'bet_admin.db'}"
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def _normalize_postgres_scheme(cls, value: str) -> str:
+        # Render (and formerly Heroku) hand out "postgres://", but SQLAlchemy 2.x
+        # only recognizes "postgresql://" and raises NoSuchModuleError otherwise.
+        if value.startswith("postgres://"):
+            return "postgresql://" + value[len("postgres://"):]
+        return value
 
     # No default: the app must fail to boot if this isn't set explicitly.
     JWT_SECRET: str
