@@ -44,7 +44,5 @@ services:
     startCommand: npm run start
     envVars:
       - key: BACKEND_URL
-        fromService:
-          type: web
-          name: kalyan-api
-          property: host
+        value: kalyan-api-nkgm.onrender.com
+
