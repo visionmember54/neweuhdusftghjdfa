@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { getBackendUrl } from '@/lib/backend-url';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = getBackendUrl();
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME || 'kalyan_admin_session';
 
 async function proxy(req: NextRequest, path: string[]): Promise<NextResponse> {
