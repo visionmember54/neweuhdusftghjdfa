@@ -1,0 +1,48 @@
+services:
+  # 1. Managed PostgreSQL Database
+  - type: psql
+    name: kalyan-postgres
+    plan: free # Change to starter/standard for production
+    region: oregon # or frankfurt, ohio, singapore
+    databaseName: kalyandb
+    user: kalyan_admin
+
+  # 2. FastAPI Backend Service
+  - type: web
+    name: kalyan-api
+    env: python
+    region: oregon
+    plan: free
+    rootDir: admin-backend
+    # We use a custom build command to ensure migrations are run and the seed script populates the initial admin user.
+    buildCommand: pip install -r requirements.txt && alembic upgrade head && python -m app.seed
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kalyan-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true # Render will generate a random string
+      - key: CORS_ORIGINS
+        value: "*" # For strict security, change this to the URL of your frontend once deployed
+      - key: JWT_ALG
+        value: HS256
+      - key: JWT_TTL_MIN
+        value: 720
+
+  # 3. Next.js Frontend Service
+  - type: web
+    name: kalyan-frontend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: admin-frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: kalyan-api
+          property: url
