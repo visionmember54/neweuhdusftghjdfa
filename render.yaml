@@ -45,4 +45,4 @@ services:
         fromService:
           type: web
           name: kalyan-api
-          property: url
+          property: host
